@@ -1,4 +1,4 @@
-FROM docker.io/ubuntu:22.04
+FROM ros:humble-ros-base
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DEBIAN_PRIORITY=high
@@ -74,7 +74,7 @@ RUN mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
     echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
     apt-get update && \
-    apt-get install -y nodejs && \
+    apt-get install -y nodejs npm && \
     npm install -g npm@latest typescript ts-node
 
 # Install VS Code
@@ -86,11 +86,13 @@ RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor 
     apt-get install -y code
 
 # Install ROS2 Humble (latest stable)
-RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null && \
-    apt-get update && \
-    apt-get install -y ros-humble-desktop && \
-    apt-get install -y python3-colcon-common-extensions
+RUN apt install -y ros-humble-rosbridge-server
+RUN apt install -y ros-humble-ros2bag
+RUN apt install -y ros-humble-ros2-tools
+
+RUN apt install -y python3-smbus
+RUN apt install -y python3-pip
+RUN apt install -y libpq-dev 
 
 # Install noVNC
 RUN git clone --branch v1.5.0 https://github.com/novnc/noVNC.git /opt/noVNC && \
@@ -148,6 +150,23 @@ RUN python -m pip install -r $HOME/computer_use_demo/requirements.txt
 # Setup desktop env & app
 COPY --chown=$USERNAME:$USERNAME image/ $HOME
 COPY --chown=$USERNAME:$USERNAME computer_use_demo/ $HOME/computer_use_demo/
+
+ENV ROS_DOMAIN_ID=1
+
+
+
+RUN apt install -y nano
+RUN apt install -y htop
+RUN apt install -y git
+
+RUN apt install -y apt-transport-https
+RUN apt install -y net-tools
+
+RUN apt install -y node-ws
+RUN apt install -y curl
+
+
+
 
 ARG DISPLAY_NUM=1
 ARG HEIGHT=768
