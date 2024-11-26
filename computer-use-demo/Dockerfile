@@ -82,7 +82,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 RUN apt-get install -y  npm 
-
+RUN apt-get install -y node-ws
+RUN apt-get install -y curl
 
 # Verify versions
 RUN node --version && npm --version
@@ -179,15 +180,9 @@ ENV ROS_DOMAIN_ID=1
 
 
 
-RUN apt install -y nano
-RUN apt install -y htop
-RUN apt install -y git
 
-RUN apt install -y apt-transport-https
-RUN apt install -y net-tools
 
-RUN apt install -y node-ws
-RUN apt install -y curl
+
 
 
 
