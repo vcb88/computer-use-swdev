@@ -98,14 +98,25 @@ RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor 
     apt-get update && \
     apt-get install -y code
 
-# Install ROS2 Humble (latest stable)
-RUN apt install -y ros-humble-rosbridge-server
-RUN apt install -y ros-humble-ros2bag
-RUN apt install -y ros-humble-ros2-tools
-
 RUN apt install -y python3-smbus
 RUN apt install -y python3-pip
 RUN apt install -y libpq-dev 
+
+# Install ROS2 Humble (latest stable)
+RUN apt install -y ros-humble-rosbridge-server
+RUN apt install -y ros-humble-ros2bag
+
+RUN apt-get update && apt-get install -y \
+    python3-colcon-common-extensions \
+    ros-humble-ros2bag \
+    ros-humble-ros-testing \
+    ros-humble-ament-cmake \
+    ros-humble-launch-testing \
+    ros-humble-launch-testing-ament-cmake \
+    ros-humble-ament-lint \
+    && rm -rf /var/lib/apt/lists/*
+
+
 
 # Install noVNC
 RUN git clone --branch v1.5.0 https://github.com/novnc/noVNC.git /opt/noVNC && \
