@@ -76,7 +76,18 @@ ENV LANG=en_US.UTF-8
 #    apt-get update && \
 #    apt-get install -y nodejs npm && \
 #    npm install -g npm@latest typescript ts-node
-RUN apt-get install -y nodejs npm 
+
+# Install Node.js LTS
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y  npm 
+
+
+# Verify versions
+RUN node --version && npm --version
+
+#RUN apt-get install -y nodejs npm 
 RUN npm install -g npm@latest typescript ts-node
 
 # Install VS Code
