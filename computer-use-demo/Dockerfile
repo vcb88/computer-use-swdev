@@ -111,7 +111,6 @@ RUN apt-get update && apt-get install -y \
     python3-colcon-common-extensions \
     ros-humble-ros2bag \
     ros-humble-ros-testing \
-    ros-humble-rosbridge-suite \
     ros-humble-rosbridge-server \
     ros-humble-rosbridge-msgs \
     ros-humble-rosbridge-library \    
