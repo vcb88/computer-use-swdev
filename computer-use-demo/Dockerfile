@@ -83,6 +83,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && rm -rf /var/lib/apt/lists/*
 RUN apt-get install -y  npm 
 RUN apt-get install -y curl
+RUN npm install roslib
 
 # Verify versions
 RUN node --version && npm --version
@@ -143,7 +144,7 @@ RUN git clone https://github.com/pyenv/pyenv.git ~/.pyenv && \
 ENV PYENV_ROOT="$HOME/.pyenv"
 ENV PATH="$PYENV_ROOT/bin:$PATH"
 ENV PYENV_VERSION_MAJOR=3
-ENV PYENV_VERSION_MINOR=11
+ENV PYENV_VERSION_MINOR=10
 ENV PYENV_VERSION_PATCH=6
 ENV PYENV_VERSION=$PYENV_VERSION_MAJOR.$PYENV_VERSION_MINOR.$PYENV_VERSION_PATCH
 
