@@ -120,6 +120,12 @@ RUN apt-get update && apt-get install -y \
     ros-humble-ament-lint \
     && rm -rf /var/lib/apt/lists/*
 
+# Tool Use: bash Input: {'command': 'sudo apt update && sudo apt install -y python3.10-venv'}
+
+# Tool Use: bash Input: {'command': 'python3.10 -m venv ~/ros2_py310_env && source ~/ros2_py310_env/bin/activate && pip install rospkg'}
+
+#start rosbridge: 
+# Input: {'command': 'source ~/ros2_py310_env/bin/activate && source /opt/ros/humble/setup.bash && export DISPLAY=:1 && ros2 launch rosbridge_server rosbridge_websocket_launch.xml'}
 
 
 
