@@ -82,9 +82,9 @@ ENV LANG=en_US.UTF-8
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
-RUN apt-get install -y  npm 
-RUN apt-get install -y curl
-RUN npm install roslib
+RUN npm cache clean -f && \
+    npm install -g npm@latest && \
+    npm install -g roslib
 
 # Verify versions
 RUN node --version && npm --version
