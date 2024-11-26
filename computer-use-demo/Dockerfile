@@ -82,14 +82,14 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 RUN apt-get install -y  npm 
-RUN apt-get install -y node-ws
 RUN apt-get install -y curl
 
 # Verify versions
 RUN node --version && npm --version
 
 #RUN apt-get install -y nodejs npm 
-RUN npm install -g npm@latest typescript ts-node
+RUN npm install -g npm@latest typescript ts-node ws
+
 
 # Install VS Code
 RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && \
