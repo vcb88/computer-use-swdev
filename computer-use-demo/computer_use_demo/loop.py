@@ -7,6 +7,7 @@ from collections.abc import Callable
 from datetime import datetime
 from enum import StrEnum
 from typing import Any, cast
+import time
 
 import httpx
 from anthropic import (
@@ -107,6 +108,7 @@ async def sampling_loop(
     )
 
     while True:
+        time.sleep(10)
         enable_prompt_caching = False
         betas = [COMPUTER_USE_BETA_FLAG]
         image_truncation_threshold = only_n_most_recent_images or 0
