@@ -44,9 +44,40 @@ STREAMLIT_STYLE = """
     button[kind=header]:hover {
         background-color: rgb(255, 51, 51);
     }
-     /* Hide the streamlit deploy button */
+    /* Hide the streamlit deploy button */
     .stAppDeployButton {
         visibility: hidden;
+    }
+    /* Increase chat width */
+    .stChatMessage {
+        max-width: 90%;
+        width: 90%;
+    }
+    .stChatMessage > div {
+        width: 100%;
+    }
+    /* Make code blocks wider */
+    .stCodeBlock {
+        max-width: 100%;
+    }
+    pre {
+        max-width: 100%;
+    }
+    /* Adjust main container width */
+    .main > div {
+        max-width: 95%;
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+    /* Ensure chat container uses full width */
+    .element-container, .stMarkdown {
+        width: 100%;
+        max-width: 100%;
+    }
+    /* Make sure images don't overflow */
+    .stImage > img {
+        max-width: 100%;
+        height: auto;
     }
 </style>
 """
@@ -61,6 +92,8 @@ class Sender(StrEnum):
     BOT = "assistant"
     TOOL = "tool"
 
+
+from .chat_logger import ChatLogger
 
 def setup_state():
     if "messages" not in st.session_state:
@@ -92,6 +125,9 @@ def setup_state():
         st.session_state.hide_images = False
     if "in_sampling_loop" not in st.session_state:
         st.session_state.in_sampling_loop = False
+    if "chat_logger" not in st.session_state:
+        st.session_state.chat_logger = ChatLogger()
+        st.session_state.chat_logger.start_session()
 
 
 def _reset_model():
@@ -153,9 +189,31 @@ async def main():
             ),
         )
         st.checkbox("Hide screenshots", key="hide_images")
+        
+        # Chat log controls
+        st.markdown("### Chat Logs")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Export Chat"):
+                log_path = st.session_state.chat_logger.export_session()
+                st.download_button(
+                    "Download Chat Log",
+                    open(log_path, "r").read(),
+                    file_name=f"chat_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+                    mime="text/plain"
+                )
+        
+        with col2:
+            if st.button("New Session"):
+                st.session_state.chat_logger.start_session()
+                st.info("Started new chat session")
 
         if st.button("Reset", type="primary"):
             with st.spinner("Resetting..."):
+                # Export current session before clearing
+                if st.session_state.messages:
+                    st.session_state.chat_logger.export_session()
+                
                 st.session_state.clear()
                 setup_state()
 
@@ -400,6 +458,10 @@ def _render_message(
         and not hasattr(message, "output")
     ):
         return
+        
+    # Log message before rendering
+    st.session_state.chat_logger.log_message(sender, message)
+    
     with st.chat_message(sender):
         if is_tool_result:
             message = cast(ToolResult, message)
@@ -412,6 +474,11 @@ def _render_message(
                 st.error(message.error)
             if message.base64_image and not st.session_state.hide_images:
                 st.image(base64.b64decode(message.base64_image))
+                # Log image to file
+                st.session_state.chat_logger.save_image(
+                    message.base64_image,
+                    f"Screenshot from {sender}"
+                )
         elif isinstance(message, dict):
             if message["type"] == "text":
                 st.write(message["text"])
