@@ -1,8 +1,9 @@
 import asyncio
 import os
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, Optional
 
 from anthropic.types.beta import BetaToolBash20241022Param
+from ..chat_logger import ChatLogger
 
 from .base import BaseAnthropicTool, CLIResult, ToolError, ToolResult
 
@@ -112,9 +113,11 @@ class BashTool(BaseAnthropicTool):
     _session: _BashSession | None
     name: ClassVar[Literal["bash"]] = "bash"
     api_type: ClassVar[Literal["bash_20241022"]] = "bash_20241022"
+    _chat_logger: Optional[ChatLogger]
 
-    def __init__(self):
+    def __init__(self, chat_logger: Optional[ChatLogger] = None):
         self._session = None
+        self._chat_logger = chat_logger
         super().__init__()
 
     async def __call__(
@@ -133,7 +136,20 @@ class BashTool(BaseAnthropicTool):
             await self._session.start()
 
         if command is not None:
-            return await self._session.run(command)
+            # Log the command before execution
+            if self._chat_logger:
+                self._chat_logger.log_message("bash", f"$ {command}")
+
+            result = await self._session.run(command)
+
+            # Log the result after execution
+            if self._chat_logger:
+                if result.output:
+                    self._chat_logger.log_message("bash-output", result.output)
+                if result.error:
+                    self._chat_logger.log_message("bash-error", result.error)
+
+            return result
 
         raise ToolError("no command provided.")
 

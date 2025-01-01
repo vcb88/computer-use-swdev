@@ -91,6 +91,7 @@ async def sampling_loop(
         [httpx.Request, httpx.Response | object | None, Exception | None], None
     ],
     api_key: str,
+    chat_logger = None,
     only_n_most_recent_images: int | None = None,
     max_tokens: int = 4096,
 ):
@@ -99,7 +100,7 @@ async def sampling_loop(
     """
     tool_collection = ToolCollection(
         ComputerTool(),
-        BashTool(),
+        BashTool(chat_logger=chat_logger),
         EditTool(),
     )
     system = BetaTextBlockParam(

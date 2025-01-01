@@ -287,6 +287,7 @@ async def main():
                 model=st.session_state.model,
                 provider=st.session_state.provider,
                 messages=st.session_state.messages,
+                chat_logger=st.session_state.chat_logger,
                 output_callback=partial(_render_message, Sender.BOT),
                 tool_output_callback=partial(
                     _tool_output_callback, tool_state=st.session_state.tools
