@@ -45,14 +45,17 @@ class ChatLogger:
         
         timestamp = datetime.now().isoformat()
         
+        # Format timestamp for display
+        display_timestamp = datetime.fromisoformat(timestamp).strftime("%Y-%m-%d %H:%M:%S")
+
         # Process content based on type
         if isinstance(content, str):
-            processed_content = content
+            processed_content = f"[{display_timestamp}]\n{content}"
         elif isinstance(content, dict):
             if content.get("type") == "text":
-                processed_content = content["text"]
+                processed_content = f"[{display_timestamp}]\n{content['text']}"
             elif content.get("type") == "tool_use":
-                processed_content = f"Tool Use: {content['name']}\nInput: {content['input']}"
+                processed_content = f"[{display_timestamp}]\nTool Use: {content['name']}\nInput: {content['input']}"
             else:
                 processed_content = json.dumps(content)
         elif isinstance(content, list):
@@ -61,23 +64,23 @@ class ChatLogger:
             for block in content:
                 if isinstance(block, dict):
                     if block.get("type") == "text":
-                        processed_blocks.append(block["text"])
+                        processed_blocks.append(f"[{display_timestamp}]\n{block['text']}")
                     elif block.get("type") == "tool_use":
                         processed_blocks.append(
-                            f"Tool Use: {block['name']}\nInput: {block['input']}"
+                            f"[{display_timestamp}]\nTool Use: {block['name']}\nInput: {block['input']}"
                         )
                     elif block.get("type") == "tool_result":
                         if "error" in block:
-                            processed_blocks.append(f"Tool Error: {block['error']}")
+                            processed_blocks.append(f"[{display_timestamp}]\nTool Error: {block['error']}")
                         else:
-                            processed_blocks.append(f"Tool Result: {block.get('content', '')}")
+                            processed_blocks.append(f"[{display_timestamp}]\nTool Result: {block.get('content', '')}")
                     else:
-                        processed_blocks.append(json.dumps(block))
+                        processed_blocks.append(f"[{display_timestamp}]\n{json.dumps(block)}")
                 else:
-                    processed_blocks.append(str(block))
+                    processed_blocks.append(f"[{display_timestamp}]\n{str(block)}")
             processed_content = "\n".join(processed_blocks)
         else:
-            processed_content = str(content)
+            processed_content = f"[{display_timestamp}]\n{str(content)}"
         
         # Prepare log entry
         log_entry = {
