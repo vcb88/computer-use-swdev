@@ -449,6 +449,7 @@ def _render_message(
     message: str | BetaContentBlockParam | ToolResult,
 ):
     """Convert input from the user or output from the agent to a streamlit message."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     # streamlit's hotreloading breaks isinstance checks, so we need to check for class names
     is_tool_result = not isinstance(message, str | dict)
     if not message or (
@@ -466,12 +467,13 @@ def _render_message(
         if is_tool_result:
             message = cast(ToolResult, message)
             if message.output:
+                output_with_timestamp = f"[{timestamp}]\n{message.output}"
                 if message.__class__.__name__ == "CLIResult":
-                    st.code(message.output)
+                    st.code(output_with_timestamp)
                 else:
-                    st.markdown(message.output)
+                    st.markdown(output_with_timestamp)
             if message.error:
-                st.error(message.error)
+                st.error(f"[{timestamp}]\n{message.error}")
             if message.base64_image and not st.session_state.hide_images:
                 st.image(base64.b64decode(message.base64_image))
                 # Log image to file
@@ -481,14 +483,14 @@ def _render_message(
                 )
         elif isinstance(message, dict):
             if message["type"] == "text":
-                st.write(message["text"])
+                st.write(f"[{timestamp}]\n{message['text']}")
             elif message["type"] == "tool_use":
-                st.code(f'Tool Use: {message["name"]}\nInput: {message["input"]}')
+                st.code(f'[{timestamp}]\nTool Use: {message["name"]}\nInput: {message["input"]}')
             else:
                 # only expected return types are text and tool_use
                 raise Exception(f'Unexpected response type {message["type"]}')
         else:
-            st.markdown(message)
+            st.markdown(f"[{timestamp}]\n{message}")
 
 
 if __name__ == "__main__":
