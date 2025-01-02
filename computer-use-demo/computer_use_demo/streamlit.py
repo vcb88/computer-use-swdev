@@ -93,7 +93,7 @@ class Sender(StrEnum):
     TOOL = "tool"
 
 
-from .chat_logger import ChatLogger
+from computer_use_demo.chat_logger import ChatLogger
 
 def setup_state():
     if "messages" not in st.session_state:
