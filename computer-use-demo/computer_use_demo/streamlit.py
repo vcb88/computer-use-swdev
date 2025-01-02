@@ -231,9 +231,32 @@ async def main():
             st.session_state.auth_validated = True
 
     chat, http_logs = st.tabs(["Chat", "HTTP Exchange Logs"])
-    new_message = st.chat_input(
-        "Type a message to send to Claude to control the computer..."
-    )
+    
+    col1, col2 = st.columns([0.8, 0.2])
+    with col1:
+        new_message = st.chat_input(
+            "Type a message to send to Claude to control the computer..."
+        )
+    with col2:
+        uploaded_file = st.file_uploader("Upload image", type=['png', 'jpg', 'jpeg'], label_visibility="collapsed")
+        if uploaded_file is not None:
+            # Convert the uploaded file to base64
+            file_bytes = uploaded_file.getvalue()
+            b64_image = base64.b64encode(file_bytes).decode()
+            
+            # Add image message to chat
+            st.session_state.messages.append({
+                "role": Sender.USER,
+                "content": [
+                    BetaTextBlockParam(type="text", text=f"I uploaded an image: {uploaded_file.name}"),
+                ]
+            })
+            
+            # Create a tool result with the image
+            tool_result = ToolResult(base64_image=b64_image)
+            _render_message(Sender.USER, tool_result)
+            # Clear the file uploader
+            st.session_state.uploaded_file = None
 
     with chat:
         # render past chats
