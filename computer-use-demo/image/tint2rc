@@ -1,0 +1,40 @@
+# Basic panel configuration
+panel_position = bottom center horizontal
+panel_size = 100% 30
+panel_margin = 0 0
+panel_padding = 2 0 2
+panel_background_id = 1
+wm_menu = 1
+panel_dock = 0
+panel_layer = top
+
+# Background definitions
+# Background 1: Panel
+rounded = 0
+border_width = 0
+background_color = #000000 60
+border_color = #000000 30
+background_color_hover = #000000 60
+border_color_hover = #000000 30
+background_color_pressed = #000000 60
+border_color_pressed = #000000 30
+
+# Task list
+taskbar_mode = single_desktop
+taskbar_padding = 0 0 2
+taskbar_background_id = 0
+taskbar_active_background_id = 0
+task_icon = 1
+task_text = 1
+task_centered = 0
+task_maximum_size = 180 35
+task_padding = 6 2
+task_font = sans 9
+task_font_color = #ffffff 70
+task_active_font_color = #ffffff 85
+task_urgent_font_color = #ffffff 100
+task_iconified_font_color = #ffffff 60
+task_icon_asb = 70 0 0
+task_active_icon_asb = 100 0 0
+task_urgent_icon_asb = 100 0 0
+task_iconified_icon_asb = 70 0 0

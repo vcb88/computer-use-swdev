@@ -1,8 +1,23 @@
 #!/bin/bash
-echo "starting tint2 on display :$DISPLAY_NUM ..."
+
+# Check if DISPLAY is set
+if [ -z "$DISPLAY" ]; then
+    echo "Error: DISPLAY variable is not set" >&2
+    exit 1
+fi
+
+echo "starting tint2 on display $DISPLAY ..."
+
+# Create config directory if it doesn't exist
+mkdir -p $HOME/.config/tint2
+
+# Copy our tint2rc if it doesn't exist
+if [ ! -f $HOME/.config/tint2/tint2rc ]; then
+    cp $(dirname $0)/tint2rc $HOME/.config/tint2/tint2rc
+fi
 
 # Start tint2 and capture its stderr
-tint2 -c $HOME/.config/tint2/tint2rc 2>/tmp/tint2_stderr.log &
+tint2 2>/tmp/tint2_stderr.log &
 
 # Wait for tint2 window properties to appear
 timeout=30
