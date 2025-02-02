@@ -6,7 +6,7 @@ import platform
 from collections.abc import Callable
 from datetime import datetime
 from enum import StrEnum
-from typing import Any, cast
+from typing import Any, cast, Optional
 import time
 
 import httpx
@@ -31,6 +31,7 @@ from anthropic.types.beta import (
 )
 
 from .tools import BashTool, ComputerTool, EditTool, ToolCollection, ToolResult
+from .context_manager import ContextManager
 
 COMPUTER_USE_BETA_FLAG = "computer-use-2024-10-22"
 PROMPT_CACHING_BETA_FLAG = "prompt-caching-2024-07-31"
@@ -94,6 +95,7 @@ async def sampling_loop(
     chat_logger = None,
     only_n_most_recent_images: int | None = None,
     max_tokens: int = 4096,
+    context_manager: Optional[ContextManager] = None,
 ):
     """
     Agentic sampling loop for the assistant/tool interaction of computer use.
@@ -103,6 +105,13 @@ async def sampling_loop(
         BashTool(chat_logger=chat_logger),
         EditTool(),
     )
+
+    # Initialize context manager if not provided
+    if context_manager is None:
+        system_text = f"{SYSTEM_PROMPT}{' ' + system_prompt_suffix if system_prompt_suffix else ''}"
+        core_context = [{"role": "system", "content": system_text}]
+        context_manager = ContextManager(max_tokens=40000, core_context=core_context)
+    
     system = BetaTextBlockParam(
         type="text",
         text=f"{SYSTEM_PROMPT}{' ' + system_prompt_suffix if system_prompt_suffix else ''}",
@@ -141,9 +150,19 @@ async def sampling_loop(
         # implementation may be able call the SDK directly with:
         # `response = client.messages.create(...)` instead.
         try:
+            # Before API call, manage context
+            removed_messages = context_manager.add_message(messages[-1])
+            if removed_messages and chat_logger:
+                chat_logger.log_info(f"Removed {len(removed_messages)} old messages from context to maintain token limit")
+                stats = context_manager.get_token_stats()
+                chat_logger.log_info(f"Current token stats: {stats}")
+
+            # Get optimized context for API call
+            current_context = context_manager.get_current_context()
+
             raw_response = client.beta.messages.with_raw_response.create(
                 max_tokens=max_tokens,
-                messages=messages,
+                messages=current_context,
                 model=model,
                 system=[system],
                 tools=tool_collection.to_params(),
